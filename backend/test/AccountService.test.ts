@@ -2,12 +2,14 @@ import { AccountDAODatabase, AccountDAOMemory } from "../src/AccountDAO";
 import AccountService from "../src/AccountService";
 import sinon from "sinon";
 import * as mailer from "../src/mailer";
+import {AssetDAOMemory} from "../src/AssetDAO";
 
 let accountService: AccountService;
 
 beforeEach(() => {
     const accountDAO = new AccountDAOMemory();
-    accountService = new AccountService(accountDAO);
+    const assetDAO = new AssetDAOMemory()
+    accountService = new AccountService(accountDAO, assetDAO);
 });
 
 test("Deve criar uma conta", async () => {

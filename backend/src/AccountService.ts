@@ -1,12 +1,22 @@
 import AccountDAO, { AccountDAODatabase } from "./AccountDAO";
 import { sendEmail } from "./mailer";
 import { validateCpf } from "./validateCpf";
+import AssetDAO from "./AssetDAO";
+
+export type DepositInput = {
+    assetId: 'BTC' | 'USD';
+    quantity: number;
+}
+
+
+type Asset = {
+    account_id: string;
+    asset_id: 'BTC' | 'USD';
+    quantity: number;
+}
 
 export default class AccountService {
-    accountDAO: AccountDAO;
-
-    constructor (accountDAO: AccountDAO) {
-        this.accountDAO = accountDAO;
+    constructor (private accountDAO: AccountDAO, private assetDAO: AssetDAO) {
     }
 
     async signup (input: any) {
@@ -38,7 +48,6 @@ export default class AccountService {
         }
         await this.accountDAO.saveAccount(account);
         const success = await sendEmail(account.email, "Welcome!", "...");
-        console.log(success);
         return {
             accountId
         }
@@ -46,6 +55,60 @@ export default class AccountService {
 
     async getAccount (accountId: string) {
         const account = await this.accountDAO.getAccountById(accountId);
+        const assets: Asset[] | null = await this.assetDAO.getByAccountId(accountId)
+        account.assets = assets ?? [];
         return account;
+    }
+
+    async deposit (accountId: string, input: DepositInput) {
+        const account = await this.getAccount(accountId);
+
+        if (!account) {
+            throw new Error("Account not found");
+        }
+
+        if (!input.assetId || !input.quantity) {
+            throw new Error("Invalid deposit");
+        }
+
+        if (input.quantity <= 0) {
+            throw new Error("Quantity must be greater than 0");
+        }
+
+        const asset = {
+            accountId,
+            assetId: input.assetId,
+            quantity: input.quantity
+        }
+
+        await this.assetDAO.saveAsset(asset);
+
+    }
+
+    async withdraw (accountId: string, input: DepositInput) {
+        const account = await this.getAccount(accountId);
+
+        if (!account) {
+            throw new Error("Account not found");
+        }
+
+        if (!input.assetId || !input.quantity) {
+            throw new Error("Invalid deposit");
+        }
+
+        if (input.quantity <= 0) {
+            throw new Error("Quantity must be greater than 0");
+        }
+
+        const asset =  account.assets.find((asset: Asset) => asset.asset_id === input.assetId);
+
+        if (asset.quantity < input.quantity) {
+            throw new Error("Insufficient balance");
+        }
+
+        asset.quantity -= input.quantity;
+        await this.assetDAO.updateAsset(asset);
+
+        return {asset}
     }
 }
