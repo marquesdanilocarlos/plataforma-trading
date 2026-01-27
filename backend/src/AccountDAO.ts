@@ -27,6 +27,8 @@ export class AccountDAODatabase implements AccountDAO {
       'select * from ccca.account where account_id = $1',
       [accountId],
     )
+    const balancesData = await connection.query("select * from ccca.account_balance where account_id = $1", [accountId]);
+    account.balances = balancesData;
     await connection.$pool.end()
     return account
   }

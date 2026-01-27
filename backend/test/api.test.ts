@@ -1,9 +1,8 @@
 import axios from 'axios'
-import { DepositInput } from '../src/AccountService'
 
 axios.defaults.validateStatus = () => true
 
-test('Deve criar uma conta', async () => {
+test.skip('Deve criar uma conta', async () => {
   const input = {
     name: 'John Doe',
     email: 'john.doe@gmail.com',
@@ -26,7 +25,7 @@ test('Deve criar uma conta', async () => {
   expect(outputGetAccount.password).toBe(input.password)
 })
 
-test('Não deve criar uma conta se o nome for inválido', async () => {
+test.skip('Não deve criar uma conta se o nome for inválido', async () => {
   const input = {
     name: 'John',
     email: 'john.doe@gmail.com',

@@ -30,33 +30,6 @@ async function main() {
     res.json(output)
   })
 
-  /*app.post('/deposit/:accountId', async (req: Request, res: Response) => {
-    const accountId = req.params.accountId as string
-    const input = req.body
-    try {
-      const output = await accountService.deposit(input)
-      res.json(output)
-    } catch (e: any) {
-      res.status(422).json({
-        message: e.message,
-      })
-    }
-  })
-
-  app.post('/withdraw/:accountId', async (req: Request, res: Response) => {
-    const accountId = req.params.accountId as string
-    const input = req.body
-    try {
-      const output = await accountService.withdraw(input)
-      console.log(output)
-      res.json(output)
-    } catch (e: any) {
-      res.status(422).json({
-        message: e.message,
-      })
-    }
-  })*/
-
   app.listen(3333)
 }
 
