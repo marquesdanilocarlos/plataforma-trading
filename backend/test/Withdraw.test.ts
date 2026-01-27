@@ -3,18 +3,26 @@ import Signup from '../src/Signup'
 import GetAccount from '../src/GetAccount'
 import Deposit, { DepositInput } from '../src/Deposit'
 import Withdraw from '../src/Withdraw'
+import { DatabaseConnection } from '../src/DatabaseConnection'
+import PgPromiseAdapter from '../src/PgPromiseAdapter'
 
 let signup: Signup
 let getAccount: GetAccount
 let deposit: Deposit
 let withdraw: Withdraw
+let databaseConnection: DatabaseConnection
 
 beforeEach(() => {
-  const accountRepository = new AccountRepositoryDatabase()
+  databaseConnection = new PgPromiseAdapter()
+  const accountRepository = new AccountRepositoryDatabase(databaseConnection)
   signup = new Signup(accountRepository)
   getAccount = new GetAccount(accountRepository)
   deposit = new Deposit(accountRepository)
   withdraw = new Withdraw(accountRepository)
+})
+
+afterEach(async () => {
+  await databaseConnection.close()
 })
 
 test('Deve realizar um saque', async () => {

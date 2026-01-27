@@ -4,14 +4,22 @@ import * as mailer from '../src/mailer'
 import Signup from '../src/Signup'
 import GetAccount from '../src/GetAccount'
 import Account from '../src/Account'
+import { DatabaseConnection } from '../src/DatabaseConnection'
+import PgPromiseAdapter from '../src/PgPromiseAdapter'
 
 let signup: Signup
 let getAccount: GetAccount
+let databaseConnection: DatabaseConnection
 
 beforeEach(() => {
-  const accountRepository = new AccountRepositoryDatabase()
+  databaseConnection = new PgPromiseAdapter()
+  const accountRepository = new AccountRepositoryDatabase(databaseConnection)
   signup = new Signup(accountRepository)
   getAccount = new GetAccount(accountRepository)
+})
+
+afterEach(async () => {
+  await databaseConnection.close()
 })
 
 test('Deve criar uma conta', async () => {

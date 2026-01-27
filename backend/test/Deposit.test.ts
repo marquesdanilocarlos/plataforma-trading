@@ -2,16 +2,24 @@ import { AccountRepositoryDatabase } from '../src/AccountRepository'
 import Signup from '../src/Signup'
 import GetAccount from '../src/GetAccount'
 import Deposit, { DepositInput } from '../src/Deposit'
+import { DatabaseConnection } from '../src/DatabaseConnection'
+import PgPromiseAdapter from '../src/PgPromiseAdapter'
 
 let signup: Signup
 let getAccount: GetAccount
 let deposit: Deposit
+let databaseConnection: DatabaseConnection
 
 beforeEach(() => {
-  const accountRepository = new AccountRepositoryDatabase()
+  databaseConnection = new PgPromiseAdapter()
+  const accountRepository = new AccountRepositoryDatabase(databaseConnection)
   signup = new Signup(accountRepository)
   getAccount = new GetAccount(accountRepository)
   deposit = new Deposit(accountRepository)
+})
+
+afterEach(async () => {
+  await databaseConnection.close()
 })
 
 test('Deve depositar em uma conta', async () => {

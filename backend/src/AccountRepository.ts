@@ -1,6 +1,15 @@
-import pgp from 'pg-promise'
 import Account from './Account'
 import Balance from './Balance'
+import { DatabaseConnection } from './DatabaseConnection'
+
+type AccountRow = {
+  account_id: string
+  name: string
+  email: string
+  document: string
+  password: string
+  balances: BalanceRow[]
+}
 
 type BalanceRow = {
   asset_id: string
@@ -14,9 +23,10 @@ export default interface AccountRepository {
 }
 
 export class AccountRepositoryDatabase implements AccountRepository {
+  constructor(private connection: DatabaseConnection) {}
+
   async saveAccount(account: Account): Promise<void> {
-    const connection = pgp()('postgres://postgres:123456@localhost:5432/app')
-    await connection.query(
+    await this.connection.query(
       'insert into ccca.account (account_id, name, email, document, password) values ($1, $2, $3, $4, $5)',
       [
         account.accountId,
@@ -26,12 +36,10 @@ export class AccountRepositoryDatabase implements AccountRepository {
         account.password,
       ],
     )
-    await connection.$pool.end()
   }
 
   async getAccountById(accountId: string): Promise<Account> {
-    const connection = pgp()('postgres://postgres:123456@localhost:5432/app')
-    const [account] = await connection.query(
+    const [account] = await this.connection.query<AccountRow>(
       'select * from ccca.account where account_id = $1',
       [accountId],
     )
@@ -40,7 +48,7 @@ export class AccountRepositoryDatabase implements AccountRepository {
       throw new Error('Account not found')
     }
 
-    const balancesData = await connection.query(
+    const balancesData = await this.connection.query<BalanceRow>(
       'select * from ccca.account_balance where account_id = $1',
       [accountId],
     )
@@ -49,26 +57,21 @@ export class AccountRepositoryDatabase implements AccountRepository {
       return new Balance(balanceData.asset_id, parseFloat(balanceData.quantity))
     })
 
-    await connection.$pool.end()
     return Account.create({ ...account, balances })
   }
 
   async updateAccount(account: Account): Promise<void> {
-    const connection = pgp()('postgres://postgres:123456@localhost:5432/app')
-
-    await connection.query(
+    await this.connection.query(
       'delete from ccca.account_balance where account_id = $1',
       [account.accountId],
     )
 
     for (const balance of account.balances) {
-      await connection.query(
+      await this.connection.query(
         'insert into ccca.account_balance (account_id, asset_id, quantity) values ($1, $2, $3)',
         [account.accountId, balance.assetId, balance.quantity],
       )
     }
-
-    await connection.$pool.end()
   }
 }
 
