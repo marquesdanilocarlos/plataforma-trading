@@ -1,9 +1,8 @@
-import { AccountDAODatabase } from '../src/AccountDAO'
-import { BalanceDAODatabase } from '../src/BalanceDAO'
-import Signup from "../src/Signup";
-import GetAccount from "../src/GetAccount";
-import Deposit, {DepositInput} from "../src/Deposit";
-import Withdraw from "../src/Withdraw";
+import { AccountRepositoryDatabase } from '../src/AccountRepository'
+import Signup from '../src/Signup'
+import GetAccount from '../src/GetAccount'
+import Deposit, { DepositInput } from '../src/Deposit'
+import Withdraw from '../src/Withdraw'
 
 let signup: Signup
 let getAccount: GetAccount
@@ -11,14 +10,12 @@ let deposit: Deposit
 let withdraw: Withdraw
 
 beforeEach(() => {
-  const accountDAO = new AccountDAODatabase()
-  const balanceDAO = new BalanceDAODatabase()
-  signup = new Signup(accountDAO)
-  getAccount = new GetAccount(accountDAO, balanceDAO)
-  deposit = new Deposit(accountDAO, balanceDAO)
-  withdraw = new Withdraw(accountDAO, balanceDAO)
+  const accountRepository = new AccountRepositoryDatabase()
+  signup = new Signup(accountRepository)
+  getAccount = new GetAccount(accountRepository)
+  deposit = new Deposit(accountRepository)
+  withdraw = new Withdraw(accountRepository)
 })
-
 
 test('Deve realizar um saque', async () => {
   const input = {
@@ -43,9 +40,7 @@ test('Deve realizar um saque', async () => {
     quantity: 7000,
   })
 
-  const outputGetAccount = await getAccount.execute(
-      outputSignup.accountId,
-  )
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId)
 
   expect(outputGetAccount.balances[0].assetId).toBe('BTC')
   expect(outputGetAccount.balances[0].quantity).toBe(800)
@@ -74,13 +69,10 @@ test('Deve remover o balance caso seja sacado todo o valor', async () => {
     quantity: 87454,
   })
 
-  const outputGetAccount = await getAccount.execute(
-      outputSignup.accountId,
-  )
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId)
 
   expect(outputGetAccount.balances).toHaveLength(0)
 })
-
 
 test('Não deve sacar em conta sem fundos', async () => {
   const input = {
@@ -99,7 +91,6 @@ test('Não deve sacar em conta sem fundos', async () => {
     })
   }).rejects.toThrow(new Error('You dont have funds'))
 })
-
 
 test('Deve remover o balance caso seja sacado todo o valor', async () => {
   const input = {

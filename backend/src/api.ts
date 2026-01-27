@@ -1,14 +1,14 @@
 import express, { Request, Response } from 'express'
 import cors from 'cors'
 import AccountService from './AccountService'
-import { AccountDAODatabase } from './AccountDAO'
+import { AccountRepositoryDatabase } from './AccountRepository'
 import { BalanceDAODatabase } from './BalanceDAO'
 
 async function main() {
   const app = express()
   app.use(cors())
   app.use(express.json())
-  const accountDAO = new AccountDAODatabase()
+  const accountDAO = new AccountRepositoryDatabase()
   const assetDAO = new BalanceDAODatabase()
   const accountService = new AccountService(accountDAO, assetDAO)
 

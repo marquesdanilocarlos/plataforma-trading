@@ -1,19 +1,17 @@
-import { AccountDAODatabase } from '../src/AccountDAO'
-import { BalanceDAODatabase } from '../src/BalanceDAO'
-import Signup from "../src/Signup";
-import GetAccount from "../src/GetAccount";
-import Deposit, {DepositInput} from "../src/Deposit";
+import { AccountRepositoryDatabase } from '../src/AccountRepository'
+import Signup from '../src/Signup'
+import GetAccount from '../src/GetAccount'
+import Deposit, { DepositInput } from '../src/Deposit'
 
 let signup: Signup
 let getAccount: GetAccount
 let deposit: Deposit
 
 beforeEach(() => {
-  const accountDAO = new AccountDAODatabase()
-  const balanceDAO = new BalanceDAODatabase()
-  signup = new Signup(accountDAO)
-  getAccount = new GetAccount(accountDAO, balanceDAO)
-  deposit = new Deposit(accountDAO, balanceDAO)
+  const accountRepository = new AccountRepositoryDatabase()
+  signup = new Signup(accountRepository)
+  getAccount = new GetAccount(accountRepository)
+  deposit = new Deposit(accountRepository)
 })
 
 test('Deve depositar em uma conta', async () => {
@@ -33,14 +31,11 @@ test('Deve depositar em uma conta', async () => {
 
   await deposit.execute(inputDeposit)
 
-  const outputGetAccount = await getAccount.execute(
-    outputSignup.accountId,
-  )
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId)
 
   expect(outputGetAccount.balances[0].assetId).toBe('USD')
   expect(outputGetAccount.balances[0].quantity).toBe(10000)
 })
-
 
 test('Deve depositar duas vezes em uma conta', async () => {
   const input = {
@@ -67,18 +62,13 @@ test('Deve depositar duas vezes em uma conta', async () => {
 
   await deposit.execute(secondInputDeposit)
 
-
-  const outputGetAccount = await getAccount.execute(
-      outputSignup.accountId,
-  )
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId)
 
   expect(outputGetAccount.balances[0].assetId).toBe('USD')
   expect(outputGetAccount.balances[0].quantity).toBe(20000)
 })
 
-
-test('Não deve permitir depositar sem account válida',  () => {
-
+test('Não deve permitir depositar sem account válida', () => {
   const inputDeposit: DepositInput = {
     accountId: 'b010dc02-4905-4be5-8535-317d3a669afc',
     assetId: 'USD',

@@ -1,18 +1,17 @@
-import { AccountDAODatabase } from '../src/AccountDAO'
+import { AccountRepositoryDatabase } from '../src/AccountRepository'
 import sinon from 'sinon'
 import * as mailer from '../src/mailer'
-import { BalanceDAODatabase } from '../src/BalanceDAO'
-import Signup from "../src/Signup";
-import GetAccount from "../src/GetAccount";
+import Signup from '../src/Signup'
+import GetAccount from '../src/GetAccount'
+import Account from '../src/Account'
 
 let signup: Signup
 let getAccount: GetAccount
 
 beforeEach(() => {
-  const accountDAO = new AccountDAODatabase()
-  const balanceDAO = new BalanceDAODatabase()
-  signup = new Signup(accountDAO)
-  getAccount = new GetAccount(accountDAO, balanceDAO)
+  const accountRepository = new AccountRepositoryDatabase()
+  signup = new Signup(accountRepository)
+  getAccount = new GetAccount(accountRepository)
 })
 
 test('Deve criar uma conta', async () => {
@@ -24,9 +23,7 @@ test('Deve criar uma conta', async () => {
   }
   const outputSignup = await signup.execute(input)
   expect(outputSignup.accountId).toBeDefined()
-  const outputGetAccount = await getAccount.execute(
-    outputSignup.accountId,
-  )
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId)
   expect(outputGetAccount.name).toBe(input.name)
   expect(outputGetAccount.email).toBe(input.email)
   expect(outputGetAccount.document).toBe(input.document)
@@ -36,22 +33,20 @@ test('Deve criar uma conta', async () => {
 test('Deve criar uma conta com stub', async () => {
   const mailerStub = sinon.stub(mailer, 'sendEmail').resolves()
   const accountDAOSaveAccountStub = sinon
-    .stub(AccountDAODatabase.prototype, 'saveAccount')
+    .stub(AccountRepositoryDatabase.prototype, 'saveAccount')
     .resolves()
-  const input = {
+  const input = Account.create({
     name: 'John Doe',
     email: 'john.doe@gmail.com',
     document: '97456321558',
     password: 'asdQWE123',
-  }
+  })
   const accountDAOGetAccountByIdStub = sinon
-    .stub(AccountDAODatabase.prototype, 'getAccountById')
+    .stub(AccountRepositoryDatabase.prototype, 'getAccountById')
     .resolves(input)
   const outputSignup = await signup.execute(input)
   expect(outputSignup.accountId).toBeDefined()
-  const outputGetAccount = await getAccount.execute(
-    outputSignup.accountId,
-  )
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId)
   expect(outputGetAccount.name).toBe(input.name)
   expect(outputGetAccount.email).toBe(input.email)
   expect(outputGetAccount.document).toBe(input.document)
@@ -71,9 +66,7 @@ test('Deve criar uma conta com spy', async () => {
   }
   const outputSignup = await signup.execute(input)
   expect(outputSignup.accountId).toBeDefined()
-  const outputGetAccount = await getAccount.execute(
-    outputSignup.accountId,
-  )
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId)
   expect(outputGetAccount.name).toBe(input.name)
   expect(outputGetAccount.email).toBe(input.email)
   expect(outputGetAccount.document).toBe(input.document)
@@ -100,9 +93,7 @@ test('Deve criar uma conta com mock', async () => {
   }
   const outputSignup = await signup.execute(input)
   expect(outputSignup.accountId).toBeDefined()
-  const outputGetAccount = await getAccount.execute(
-    outputSignup.accountId,
-  )
+  const outputGetAccount = await getAccount.execute(outputSignup.accountId)
   expect(outputGetAccount.name).toBe(input.name)
   expect(outputGetAccount.email).toBe(input.email)
   expect(outputGetAccount.document).toBe(input.document)

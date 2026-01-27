@@ -1,5 +1,5 @@
-import AccountDAO from './AccountDAO'
-import BalanceDAO from './BalanceDAO'
+import AccountRepository from './AccountRepository'
+import Balance from './Balance'
 
 export type GetAccountOutput = {
   accountId: string
@@ -7,36 +7,19 @@ export type GetAccountOutput = {
   email: string
   document: string
   password: string
-  balances: {
-    assetId: string
-    quantity: number
-  }[]
-}
-
-type Balance = {
-  asset_id: 'BTC' | 'USD'
-  quantity: string
+  balances: Balance[]
 }
 
 export default class GetAccount {
-  constructor(
-    private accountDAO: AccountDAO,
-    private balanceDAO: BalanceDAO,
-  ) {}
+  constructor(private accountDAO: AccountRepository) {}
 
   async execute(accountId: string): Promise<GetAccountOutput> {
     const account = await this.accountDAO.getAccountById(accountId)
-    const balances: Balance[] = await this.balanceDAO.getByAccountId(accountId) ?? []
-    return {
-      accountId: account.account_id,
-      name: account.name,
-      email: account.email,
-      document: account.document,
-      password: account.password,
-      balances: balances.map(balance => ({
-        assetId: balance.asset_id,
-        quantity: parseFloat(balance.quantity),
-      })),
+
+    if (!account) {
+      throw new Error('Account not found')
     }
+
+    return { ...account }
   }
 }
