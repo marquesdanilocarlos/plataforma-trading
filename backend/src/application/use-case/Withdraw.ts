@@ -1,4 +1,4 @@
-import AccountRepository from './AccountRepository'
+import AccountRepository from '../../infra/repositories/AccountRepository'
 
 export type WithdrawInput = {
   accountId: string

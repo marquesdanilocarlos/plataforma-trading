@@ -1,5 +1,5 @@
-import AccountRepository from './AccountRepository'
-import Account from './Account'
+import AccountRepository from '../../infra/repositories/AccountRepository'
+import Account from '../../domain/Account'
 
 export type DepositInput = {
   accountId: string

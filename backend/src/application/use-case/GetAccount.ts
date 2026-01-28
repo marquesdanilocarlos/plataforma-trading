@@ -1,5 +1,5 @@
-import AccountRepository from './AccountRepository'
-import Balance from './Balance'
+import AccountRepository from '../../infra/repositories/AccountRepository'
+import Balance from '../../domain/Balance'
 
 export type GetAccountOutput = {
   accountId: string

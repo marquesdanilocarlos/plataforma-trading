@@ -1,6 +1,6 @@
-import Account from './Account'
-import Balance from './Balance'
-import { DatabaseConnection } from './DatabaseConnection'
+import Account from '../../domain/Account'
+import Balance from '../../domain/Balance'
+import { DatabaseConnection } from '../database/DatabaseConnection'
 
 type AccountRow = {
   account_id: string

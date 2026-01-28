@@ -1,4 +1,4 @@
-import Account from '../src/Account'
+import Account from '../src/domain/Account'
 
 test('Deve fazer um depósito', () => {
   const account = Account.create({

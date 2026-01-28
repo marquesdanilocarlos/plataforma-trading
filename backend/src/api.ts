@@ -1,9 +1,9 @@
-import { AccountRepositoryDatabase } from './AccountRepository'
-import PgPromiseAdapter from './PgPromiseAdapter'
-import Signup from './Signup'
-import GetAccount from './GetAccount'
-import ExpressAdapter from './ExpressAdapter'
-import AccountController from './AccountController'
+import { AccountRepositoryDatabase } from './infra/repositories/AccountRepository'
+import PgPromiseAdapter from './infra/database/PgPromiseAdapter'
+import Signup from './application/use-case/Signup'
+import GetAccount from './application/use-case/GetAccount'
+import ExpressAdapter from './infra/http/ExpressAdapter'
+import AccountController from './infra/controllers/AccountController'
 
 async function main() {
   const httpServer = new ExpressAdapter()

@@ -1,6 +1,6 @@
-import AccountRepository from './AccountRepository'
-import { sendEmail } from './mailer'
-import Account from './Account'
+import AccountRepository from '../../infra/repositories/AccountRepository'
+import { sendEmail } from '../../mailer'
+import Account from '../../domain/Account'
 
 type SignupInput = {
   name: string

@@ -1,11 +1,11 @@
-import { AccountRepositoryDatabase } from '../src/AccountRepository'
+import { AccountRepositoryDatabase } from '../src/infra/repositories/AccountRepository'
 import sinon from 'sinon'
 import * as mailer from '../src/mailer'
-import Signup from '../src/Signup'
-import GetAccount from '../src/GetAccount'
-import Account from '../src/Account'
-import { DatabaseConnection } from '../src/DatabaseConnection'
-import PgPromiseAdapter from '../src/PgPromiseAdapter'
+import Signup from '../src/application/use-case/Signup'
+import GetAccount from '../src/application/use-case/GetAccount'
+import Account from '../src/domain/Account'
+import { DatabaseConnection } from '../src/infra/database/DatabaseConnection'
+import PgPromiseAdapter from '../src/infra/database/PgPromiseAdapter'
 
 let signup: Signup
 let getAccount: GetAccount
