@@ -1,36 +1,18 @@
-import express, { Request, Response } from 'express'
-import cors from 'cors'
-import AccountService from './AccountService'
 import { AccountRepositoryDatabase } from './AccountRepository'
-import { BalanceDAODatabase } from './BalanceDAO'
+import PgPromiseAdapter from './PgPromiseAdapter'
+import Signup from './Signup'
+import GetAccount from './GetAccount'
+import ExpressAdapter from './ExpressAdapter'
+import AccountController from './AccountController'
 
 async function main() {
-  const app = express()
-  app.use(cors())
-  app.use(express.json())
-  const accountDAO = new AccountRepositoryDatabase()
-  const assetDAO = new BalanceDAODatabase()
-  const accountService = new AccountService(accountDAO, assetDAO)
-
-  app.post('/signup', async (req: Request, res: Response) => {
-    try {
-      const input = req.body
-      const output = await accountService.signup(input)
-      res.json(output)
-    } catch (e: any) {
-      res.status(422).json({
-        message: e.message,
-      })
-    }
-  })
-
-  app.get('/accounts/:accountId', async (req: Request, res: Response) => {
-    const accountId = req.params.accountId as string
-    const output = await accountService.getAccount(accountId)
-    res.json(output)
-  })
-
-  app.listen(3333)
+  const httpServer = new ExpressAdapter()
+  const databaseConnection = new PgPromiseAdapter()
+  const accountRepository = new AccountRepositoryDatabase(databaseConnection)
+  const signup = new Signup(accountRepository)
+  const getAccount = new GetAccount(accountRepository)
+  new AccountController(httpServer, signup, getAccount)
+  httpServer.listen(3333)
 }
 
 main()
