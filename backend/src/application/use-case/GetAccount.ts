@@ -20,6 +20,13 @@ export default class GetAccount {
       throw new Error('Account not found')
     }
 
-    return { ...account }
+    return {
+      accountId: account.accountId,
+      name: account.name,
+      email: account.email,
+      document: account.document,
+      password: account.password,
+      balances: account.balances,
+    }
   }
 }

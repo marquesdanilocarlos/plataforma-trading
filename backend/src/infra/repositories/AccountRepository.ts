@@ -74,28 +74,3 @@ export class AccountRepositoryDatabase implements AccountRepository {
     }
   }
 }
-
-// Fake
-export class AccountRepositoryMemory implements AccountRepository {
-  accounts: Account[] = []
-
-  async saveAccount(account: Account): Promise<void> {
-    this.accounts.push(account)
-  }
-
-  async getAccountById(accountId: string): Promise<Account> {
-    const account = this.accounts.find(
-      (account: Account) => account.accountId === accountId,
-    )
-
-    if (!account) {
-      throw new Error('Account not found')
-    }
-
-    return Account.create(account)
-  }
-
-  updateAccount(account: Account): Promise<void> {
-    return Promise.resolve()
-  }
-}

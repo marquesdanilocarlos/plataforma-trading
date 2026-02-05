@@ -43,15 +43,16 @@ test('Deve criar uma conta com stub', async () => {
   const accountDAOSaveAccountStub = sinon
     .stub(AccountRepositoryDatabase.prototype, 'saveAccount')
     .resolves()
-  const input = Account.create({
+  const input = {
     name: 'John Doe',
     email: 'john.doe@gmail.com',
     document: '97456321558',
     password: 'asdQWE123',
-  })
+  }
+  const account = Account.create(input)
   const accountDAOGetAccountByIdStub = sinon
     .stub(AccountRepositoryDatabase.prototype, 'getAccountById')
-    .resolves(input)
+    .resolves(account)
   const outputSignup = await signup.execute(input)
   expect(outputSignup.accountId).toBeDefined()
   const outputGetAccount = await getAccount.execute(outputSignup.accountId)
