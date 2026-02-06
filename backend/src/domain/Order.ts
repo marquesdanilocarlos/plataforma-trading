@@ -104,4 +104,14 @@ export default class Order {
   get timestamp(): Date {
     return this._timestamp
   }
+
+  getMainAsset(): string {
+    const [mainAsset] = this.marketId.split('-')
+    return mainAsset
+  }
+
+  getPaymentAsset(): string {
+    const [, paymentAsset] = this.marketId.split('-')
+    return paymentAsset
+  }
 }

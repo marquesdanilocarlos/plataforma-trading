@@ -55,7 +55,7 @@ export default class Account {
     )
 
     if (!existingBalance) {
-      this.balances.push(new Balance(assetId, quantity))
+      this.balances.push(new Balance(assetId, quantity, 0))
       return
     }
 
@@ -84,18 +84,36 @@ export default class Account {
     }
   }
 
-  hasBalanceForOrder(order: Order): boolean {
-    const [mainAsset, paymentAsset] = order.marketId.split('-')
-    const assetId = order.side === 'buy' ? paymentAsset : mainAsset
-    const balance = this.getBalance(assetId)
+  blockOrder(order: Order): boolean {
+    const assetId =
+      order.side === 'buy' ? order.getPaymentAsset() : order.getMainAsset()
+    const balance = this.balances.find((balance: Balance) => {
+      return balance.assetId === assetId
+    })
+
+    if (!balance) {
+      return false
+    }
+
     const quantity =
       order.side === 'buy' ? order.quantity * order.price : order.quantity
-    return balance >= quantity
+
+    if (balance.getAvailableQuantity() < quantity) {
+      return false
+    }
+
+    balance.blockedQuantity += quantity
+    return true
   }
 
   getBalance(assetId: string) {
     const balance = this.balances.find((balance) => balance.assetId === assetId)
-    return balance?.quantity ?? 0
+
+    if (!balance) {
+      return 0
+    }
+
+    return balance.getAvailableQuantity()
   }
 
   get name(): string {

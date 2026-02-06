@@ -14,6 +14,7 @@ type AccountRow = {
 type BalanceRow = {
   asset_id: string
   quantity: string
+  blocked_quantity: string
 }
 
 export default interface AccountRepository {
@@ -54,7 +55,11 @@ export class AccountRepositoryDatabase implements AccountRepository {
     )
 
     const balances = balancesData.map((balanceData: BalanceRow) => {
-      return new Balance(balanceData.asset_id, parseFloat(balanceData.quantity))
+      return new Balance(
+        balanceData.asset_id,
+        parseFloat(balanceData.quantity),
+        parseFloat(balanceData.blocked_quantity),
+      )
     })
 
     return Account.create({ ...account, balances })
@@ -68,8 +73,13 @@ export class AccountRepositoryDatabase implements AccountRepository {
 
     for (const balance of account.balances) {
       await this.connection.query(
-        'insert into ccca.account_balance (account_id, asset_id, quantity) values ($1, $2, $3)',
-        [account.accountId, balance.assetId, balance.quantity],
+        'insert into ccca.account_balance (account_id, asset_id, quantity, blocked_quantity) values ($1, $2, $3, $4)',
+        [
+          account.accountId,
+          balance.assetId,
+          balance.quantity,
+          balance.blockedQuantity,
+        ],
       )
     }
   }

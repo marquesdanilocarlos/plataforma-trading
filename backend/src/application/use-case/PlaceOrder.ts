@@ -39,11 +39,14 @@ export default class PlaceOrder {
       price,
     })
 
-    if (!account.hasBalanceForOrder(order)) {
+    const hasBalance = account.blockOrder(order)
+
+    if (!hasBalance) {
       throw new Error('Insufficient funds')
     }
 
     await this.orderRepository.saveOrder(order)
+    await this.accountRepository.updateAccount(account)
 
     return {
       orderId: order.orderId,

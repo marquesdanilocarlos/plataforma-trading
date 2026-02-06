@@ -64,7 +64,7 @@ test('Deve validar o saldo da conta para a criação de uma ordem', () => {
     password: 'asdQWE123',
   })
 
-  account.deposit('BTC', 1000)
+  account.deposit('USD', 100000)
 
   const order = Order.create({
     account_id: account.accountId,
@@ -74,5 +74,53 @@ test('Deve validar o saldo da conta para a criação de uma ordem', () => {
     price: 78000,
   })
 
-  expect(account.hasBalanceForOrder(order)).toBe(false)
+  expect(account.blockOrder(order)).toBe(true)
+  expect(account.getBalance('USD')).toBe(22000)
+})
+
+test('Não deve ter saldo suficiente para a criação de uma ordem', () => {
+  const account = Account.create({
+    name: 'John Doe',
+    email: 'john.doe@gmail.com',
+    document: '97456321558',
+    password: 'asdQWE123',
+  })
+
+  account.deposit('USD', 10000)
+
+  const order = Order.create({
+    account_id: account.accountId,
+    market_id: 'BTC-USD',
+    side: 'buy',
+    quantity: 1,
+    price: 78000,
+  })
+
+  expect(account.blockOrder(order)).toBe(false)
+  expect(account.getBalance('USD')).toBe(10000)
+})
+
+test('Não deve ter saldo suficiente para a criação de duas ordens', () => {
+  const account = Account.create({
+    name: 'John Doe',
+    email: 'john.doe@gmail.com',
+    document: '97456321558',
+    password: 'asdQWE123',
+  })
+
+  account.deposit('USD', 100000)
+  const order = Order.create({
+    account_id: account.accountId,
+    market_id: 'BTC-USD',
+    side: 'buy',
+    quantity: 1,
+    price: 78000,
+  })
+
+  const hasBalance = account.blockOrder(order)
+  expect(hasBalance).toBe(true)
+  expect(account.getBalance('USD')).toBe(22000)
+  const newHasBalance = account.blockOrder(order)
+  expect(newHasBalance).toBe(false)
+  expect(account.getBalance('USD')).toBe(22000)
 })
