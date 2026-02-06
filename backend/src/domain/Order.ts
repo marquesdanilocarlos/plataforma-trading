@@ -65,6 +65,19 @@ export default class Order {
     )
   }
 
+  fill(quantity: number, price: number) {
+    this._fillQuantity += quantity
+    this._fillPrice = price
+
+    if (this.getAvailableQuantity() === 0) {
+      this._status = 'closed'
+    }
+  }
+
+  getAvailableQuantity(): number {
+    return this._quantity - this._fillQuantity
+  }
+
   get orderId(): string {
     return this._orderId.getValue()
   }

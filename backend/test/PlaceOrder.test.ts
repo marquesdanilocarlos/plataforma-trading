@@ -43,6 +43,8 @@ test('Deve criar uma ordem de compra em uma conta', async () => {
     password: 'asdQWE123',
   })
 
+  await accountRepository.saveAccount(account)
+
   const inputDeposit: DepositInput = {
     accountId: account.accountId,
     assetId: 'USD',
@@ -69,7 +71,7 @@ test('Deve criar uma ordem de compra em uma conta', async () => {
   expect(outputGetOrder?.price).toBe(78000)
 })
 
-test.only('Não deve criar uma ordem de compra em uma conta se não tiver saldo', async () => {
+test('Não deve criar uma ordem de compra em uma conta se não tiver saldo', async () => {
   const account = Account.create({
     name: 'John Doe',
     email: 'john.doe@gmail.com',
@@ -98,4 +100,66 @@ test.only('Não deve criar uma ordem de compra em uma conta se não tiver saldo'
   await expect(async () => {
     await placeOrder.execute(inputOrder)
   }).rejects.toThrow(new Error('Insufficient funds'))
+})
+
+test('Deve criar uma ordem de compra e uma ordem de venda em uma conta', async () => {
+  const marketId = `BTC-USD-${Math.random()}`
+
+  const account = Account.create({
+    name: 'John Doe',
+    email: 'john.doe@gmail.com',
+    document: '97456321558',
+    password: 'asdQWE123',
+  })
+
+  await accountRepository.saveAccount(account)
+
+  await deposit.execute({
+    accountId: account.accountId,
+    assetId: 'USD',
+    quantity: 200000,
+  })
+
+  await deposit.execute({
+    accountId: account.accountId,
+    assetId: 'BTC',
+    quantity: 2,
+  })
+
+  const outputPlaceOrder2 = await placeOrder.execute({
+    accountId: account.accountId,
+    marketId,
+    side: 'sell',
+    quantity: 1,
+    price: 78000,
+  })
+
+  const outputPlaceOrder3 = await placeOrder.execute({
+    accountId: account.accountId,
+    marketId,
+    side: 'sell',
+    quantity: 1,
+    price: 78000,
+  })
+
+  const outputPlaceOrder1 = await placeOrder.execute({
+    accountId: account.accountId,
+    marketId,
+    side: 'buy',
+    quantity: 2,
+    price: 78000,
+  })
+
+  const outputGetOrder1 = await orderRepository.getOrderById(
+    outputPlaceOrder1.orderId,
+  )
+  const outputGetOrder2 = await orderRepository.getOrderById(
+    outputPlaceOrder2.orderId,
+  )
+  const outputGetOrder3 = await orderRepository.getOrderById(
+    outputPlaceOrder3.orderId,
+  )
+  expect(outputGetOrder1.status).toBe('closed')
+  expect(outputGetOrder2.status).toBe('closed')
+  expect(outputGetOrder3.status).toBe('closed')
 })

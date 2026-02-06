@@ -35,10 +35,6 @@ export default class PlaceOrder {
 
     const wallet = await this.walletRepository.getWalletById(accountId)
 
-    if (!wallet) {
-      throw new Error('Account not found')
-    }
-
     const order = Order.create({
       account_id: accountId,
       market_id: marketId,
@@ -55,6 +51,27 @@ export default class PlaceOrder {
 
     await this.orderRepository.saveOrder(order)
     await this.walletRepository.updateWallet(wallet)
+
+    while (true) {
+      const highestBuy = await this.orderRepository.getHighestBuy(marketId)
+      const lowestSell = await this.orderRepository.getLowestSell(marketId)
+
+      if (!highestBuy || !lowestSell || highestBuy.price < lowestSell.price) {
+        break
+      }
+
+      const fillQuantity = Math.min(highestBuy.quantity, lowestSell.quantity)
+      const fillPrice =
+        highestBuy?.timestamp > lowestSell?.timestamp
+          ? highestBuy.price
+          : lowestSell.price
+
+      highestBuy.fill(fillQuantity, fillPrice)
+      lowestSell.fill(fillQuantity, fillPrice)
+
+      await this.orderRepository.updateOrder(highestBuy)
+      await this.orderRepository.updateOrder(lowestSell)
+    }
 
     return {
       orderId: order.orderId,
