@@ -4,6 +4,7 @@ import Email from './Email'
 import Document from './Document'
 import Password from './Password'
 import UUID from './UUID'
+import Order from './Order'
 
 type AccountProps = {
   name: string
@@ -81,6 +82,15 @@ export default class Account {
     if (existingBalance.quantity === 0) {
       this.balances.splice(index, 1)
     }
+  }
+
+  hasBalanceForOrder(order: Order): boolean {
+    const [mainAsset, paymentAsset] = order.marketId.split('-')
+    const assetId = order.side === 'buy' ? paymentAsset : mainAsset
+    const balance = this.getBalance(assetId)
+    const quantity =
+      order.side === 'buy' ? order.quantity * order.price : order.quantity
+    return balance >= quantity
   }
 
   getBalance(assetId: string) {
