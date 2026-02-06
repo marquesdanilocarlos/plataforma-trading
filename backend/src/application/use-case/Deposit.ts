@@ -1,5 +1,6 @@
+import WalletRepository from '../../infra/repositories/WalletRepository'
+import Wallet from '../../domain/Wallet'
 import AccountRepository from '../../infra/repositories/AccountRepository'
-import Account from '../../domain/Account'
 
 export type DepositInput = {
   accountId: string
@@ -8,13 +9,15 @@ export type DepositInput = {
 }
 
 export default class Deposit {
-  constructor(private accountRepository: AccountRepository) {}
+  constructor(
+    private accountRepository: AccountRepository,
+    private walletRepository: WalletRepository,
+  ) {}
 
   async execute(input: DepositInput) {
     const { accountId, assetId, quantity } = input
 
-    const account: Account | null =
-      await this.accountRepository.getAccountById(accountId)
+    const account = await this.accountRepository.getAccountById(input.accountId)
 
     if (!account) {
       throw new Error('Account not found')
@@ -28,8 +31,10 @@ export default class Deposit {
       throw new Error('Quantity must be greater than 0')
     }
 
-    account.deposit(assetId, quantity)
+    const wallet = await this.walletRepository.getWalletById(accountId)
 
-    await this.accountRepository.updateAccount(account)
+    wallet.deposit(assetId, quantity)
+
+    await this.walletRepository.updateWallet(wallet)
   }
 }

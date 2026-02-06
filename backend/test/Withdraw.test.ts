@@ -1,24 +1,32 @@
-import { AccountRepositoryDatabase } from '../src/infra/repositories/AccountRepository'
+import AccountRepository, {
+  AccountRepositoryDatabase,
+} from '../src/infra/repositories/AccountRepository'
 import Signup from '../src/application/use-case/Signup'
 import GetAccount from '../src/application/use-case/GetAccount'
 import Deposit, { DepositInput } from '../src/application/use-case/Deposit'
 import Withdraw from '../src/application/use-case/Withdraw'
 import { DatabaseConnection } from '../src/infra/database/DatabaseConnection'
 import PgPromiseAdapter from '../src/infra/database/PgPromiseAdapter'
+import WalletRepository, {
+  WalletRepositoryDatabase,
+} from '../src/infra/repositories/WalletRepository'
 
 let signup: Signup
 let getAccount: GetAccount
 let deposit: Deposit
 let withdraw: Withdraw
 let databaseConnection: DatabaseConnection
+let accountRepository: AccountRepository
+let walletRepository: WalletRepository
 
 beforeEach(() => {
   databaseConnection = new PgPromiseAdapter()
-  const accountRepository = new AccountRepositoryDatabase(databaseConnection)
+  accountRepository = new AccountRepositoryDatabase(databaseConnection)
+  walletRepository = new WalletRepositoryDatabase(databaseConnection)
   signup = new Signup(accountRepository)
-  getAccount = new GetAccount(accountRepository)
-  deposit = new Deposit(accountRepository)
-  withdraw = new Withdraw(accountRepository)
+  getAccount = new GetAccount(accountRepository, walletRepository)
+  deposit = new Deposit(accountRepository, walletRepository)
+  withdraw = new Withdraw(accountRepository, walletRepository)
 })
 
 afterEach(async () => {

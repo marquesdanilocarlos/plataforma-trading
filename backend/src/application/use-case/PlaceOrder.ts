@@ -2,6 +2,7 @@ import AccountRepository from '../../infra/repositories/AccountRepository'
 import Account from '../../domain/Account'
 import Order from '../../domain/Order'
 import OrderRepository from '../../infra/repositories/OrderRepository'
+import WalletRepository from '../../infra/repositories/WalletRepository'
 
 export type PlaceOrderInput = {
   accountId: string
@@ -19,6 +20,7 @@ export default class PlaceOrder {
   constructor(
     private accountRepository: AccountRepository,
     private orderRepository: OrderRepository,
+    private walletRepository: WalletRepository,
   ) {}
 
   async execute(input: PlaceOrderInput): Promise<PlaceOrderOutput> {
@@ -31,6 +33,12 @@ export default class PlaceOrder {
       throw new Error('Account not found')
     }
 
+    const wallet = await this.walletRepository.getWalletById(accountId)
+
+    if (!wallet) {
+      throw new Error('Account not found')
+    }
+
     const order = Order.create({
       account_id: accountId,
       market_id: marketId,
@@ -39,14 +47,14 @@ export default class PlaceOrder {
       price,
     })
 
-    const hasBalance = account.blockOrder(order)
+    const hasBalance = wallet.blockOrder(order)
 
     if (!hasBalance) {
       throw new Error('Insufficient funds')
     }
 
     await this.orderRepository.saveOrder(order)
-    await this.accountRepository.updateAccount(account)
+    await this.walletRepository.updateWallet(wallet)
 
     return {
       orderId: order.orderId,

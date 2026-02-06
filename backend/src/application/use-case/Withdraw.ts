@@ -1,3 +1,4 @@
+import WalletRepository from '../../infra/repositories/WalletRepository'
 import AccountRepository from '../../infra/repositories/AccountRepository'
 
 export type WithdrawInput = {
@@ -7,22 +8,27 @@ export type WithdrawInput = {
 }
 
 export default class Withdraw {
-  constructor(private accountDAO: AccountRepository) {}
+  constructor(
+    private accountRepository: AccountRepository,
+    private walletRepository: WalletRepository,
+  ) {}
 
   async execute(input: WithdrawInput) {
     const { accountId, assetId, quantity } = input
-    const account = await this.accountDAO.getAccountById(accountId)
 
-    if (!assetId || !quantity || quantity <= 0) {
-      throw new Error('Invalid data')
-    }
+    const account = await this.accountRepository.getAccountById(input.accountId)
 
     if (!account) {
       throw new Error('Account not found')
     }
 
-    account.withdraw(assetId, quantity)
+    if (!assetId || !quantity || quantity <= 0) {
+      throw new Error('Invalid data')
+    }
+    const wallet = await this.walletRepository.getWalletById(accountId)
 
-    await this.accountDAO.updateAccount(account)
+    wallet.withdraw(assetId, quantity)
+
+    await this.walletRepository.updateWallet(wallet)
   }
 }

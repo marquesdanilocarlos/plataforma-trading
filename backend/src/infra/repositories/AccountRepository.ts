@@ -20,7 +20,6 @@ type BalanceRow = {
 export default interface AccountRepository {
   saveAccount(account: Account): Promise<void>
   getAccountById(accountId: string): Promise<Account | null>
-  updateAccount(account: Account): Promise<void>
 }
 
 export class AccountRepositoryDatabase implements AccountRepository {
@@ -49,38 +48,6 @@ export class AccountRepositoryDatabase implements AccountRepository {
       throw new Error('Account not found')
     }
 
-    const balancesData = await this.connection.query<BalanceRow>(
-      'select * from ccca.account_balance where account_id = $1',
-      [accountId],
-    )
-
-    const balances = balancesData.map((balanceData: BalanceRow) => {
-      return new Balance(
-        balanceData.asset_id,
-        parseFloat(balanceData.quantity),
-        parseFloat(balanceData.blocked_quantity),
-      )
-    })
-
-    return Account.create({ ...account, balances })
-  }
-
-  async updateAccount(account: Account): Promise<void> {
-    await this.connection.query(
-      'delete from ccca.account_balance where account_id = $1',
-      [account.accountId],
-    )
-
-    for (const balance of account.balances) {
-      await this.connection.query(
-        'insert into ccca.account_balance (account_id, asset_id, quantity, blocked_quantity) values ($1, $2, $3, $4)',
-        [
-          account.accountId,
-          balance.assetId,
-          balance.quantity,
-          balance.blockedQuantity,
-        ],
-      )
-    }
+    return Account.create(account)
   }
 }

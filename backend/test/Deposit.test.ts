@@ -1,21 +1,29 @@
-import { AccountRepositoryDatabase } from '../src/infra/repositories/AccountRepository'
+import AccountRepository, {
+  AccountRepositoryDatabase,
+} from '../src/infra/repositories/AccountRepository'
 import Signup from '../src/application/use-case/Signup'
 import GetAccount from '../src/application/use-case/GetAccount'
 import Deposit, { DepositInput } from '../src/application/use-case/Deposit'
 import { DatabaseConnection } from '../src/infra/database/DatabaseConnection'
 import PgPromiseAdapter from '../src/infra/database/PgPromiseAdapter'
+import WalletRepository, {
+  WalletRepositoryDatabase,
+} from '../src/infra/repositories/WalletRepository'
 
 let signup: Signup
 let getAccount: GetAccount
 let deposit: Deposit
 let databaseConnection: DatabaseConnection
+let accountRepository: AccountRepository
+let walletRepository: WalletRepository
 
 beforeEach(() => {
   databaseConnection = new PgPromiseAdapter()
-  const accountRepository = new AccountRepositoryDatabase(databaseConnection)
+  accountRepository = new AccountRepositoryDatabase(databaseConnection)
+  walletRepository = new WalletRepositoryDatabase(databaseConnection)
   signup = new Signup(accountRepository)
-  getAccount = new GetAccount(accountRepository)
-  deposit = new Deposit(accountRepository)
+  getAccount = new GetAccount(accountRepository, walletRepository)
+  deposit = new Deposit(accountRepository, walletRepository)
 })
 
 afterEach(async () => {
@@ -78,7 +86,7 @@ test('Deve depositar duas vezes em uma conta', async () => {
 
 test('Não deve permitir depositar sem account válida', () => {
   const inputDeposit: DepositInput = {
-    accountId: 'b010dc02-4905-4be5-8535-317d3a669afc',
+    accountId: 'b010dc02-4905-4be5-9879-317d3a669afc',
     assetId: 'USD',
     quantity: 10000,
   }

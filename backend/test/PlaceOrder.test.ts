@@ -1,23 +1,34 @@
-import { AccountRepositoryDatabase } from '../src/infra/repositories/AccountRepository'
+import AccountRepository, {
+  AccountRepositoryDatabase,
+} from '../src/infra/repositories/AccountRepository'
 import { OrderRepositoryDatabase } from '../src/infra/repositories/OrderRepository'
 import Deposit, { DepositInput } from '../src/application/use-case/Deposit'
 import { DatabaseConnection } from '../src/infra/database/DatabaseConnection'
 import PgPromiseAdapter from '../src/infra/database/PgPromiseAdapter'
 import PlaceOrder from '../src/application/use-case/PlaceOrder'
 import Account from '../src/domain/Account'
+import WalletRepository, {
+  WalletRepositoryDatabase,
+} from '../src/infra/repositories/WalletRepository'
 
 let placeOrder: PlaceOrder
 let deposit: Deposit
 let databaseConnection: DatabaseConnection
 let orderRepository: OrderRepositoryDatabase
-let accountRepository: AccountRepositoryDatabase
+let accountRepository: AccountRepository
+let walletRepository: WalletRepository
 
 beforeEach(() => {
   databaseConnection = new PgPromiseAdapter()
   accountRepository = new AccountRepositoryDatabase(databaseConnection)
   orderRepository = new OrderRepositoryDatabase(databaseConnection)
-  deposit = new Deposit(accountRepository)
-  placeOrder = new PlaceOrder(accountRepository, orderRepository)
+  walletRepository = new WalletRepositoryDatabase(databaseConnection)
+  deposit = new Deposit(accountRepository, walletRepository)
+  placeOrder = new PlaceOrder(
+    accountRepository,
+    orderRepository,
+    walletRepository,
+  )
 })
 
 afterEach(async () => {

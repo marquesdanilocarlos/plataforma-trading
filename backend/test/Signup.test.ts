@@ -1,4 +1,6 @@
-import { AccountRepositoryDatabase } from '../src/infra/repositories/AccountRepository'
+import AccountRepository, {
+  AccountRepositoryDatabase,
+} from '../src/infra/repositories/AccountRepository'
 import sinon from 'sinon'
 import * as mailer from '../src/mailer'
 import Signup from '../src/application/use-case/Signup'
@@ -6,16 +8,22 @@ import GetAccount from '../src/application/use-case/GetAccount'
 import Account from '../src/domain/Account'
 import { DatabaseConnection } from '../src/infra/database/DatabaseConnection'
 import PgPromiseAdapter from '../src/infra/database/PgPromiseAdapter'
+import WalletRepository, {
+  WalletRepositoryDatabase,
+} from '../src/infra/repositories/WalletRepository'
 
 let signup: Signup
 let getAccount: GetAccount
 let databaseConnection: DatabaseConnection
+let accountRepository: AccountRepository
+let walletRepository: WalletRepository
 
 beforeEach(() => {
   databaseConnection = new PgPromiseAdapter()
-  const accountRepository = new AccountRepositoryDatabase(databaseConnection)
+  accountRepository = new AccountRepositoryDatabase(databaseConnection)
+  walletRepository = new WalletRepositoryDatabase(databaseConnection)
   signup = new Signup(accountRepository)
-  getAccount = new GetAccount(accountRepository)
+  getAccount = new GetAccount(accountRepository, walletRepository)
 })
 
 afterEach(async () => {
