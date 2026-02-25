@@ -1,7 +1,7 @@
 import AccountRepository from '../../infra/repositories/AccountRepository'
 import Balance from '../../domain/Balance'
 import WalletRepository from '../../infra/repositories/WalletRepository'
-import Registry from '../../di/Registry'
+import { inject } from '../../di/Registry'
 
 export type GetAccountOutput = {
   accountId: string
@@ -13,13 +13,11 @@ export type GetAccountOutput = {
 }
 
 export default class GetAccount {
-  accountRepository: AccountRepository
-  walletRepository: WalletRepository
+  @inject('accountRepository')
+  accountRepository!: AccountRepository
 
-  constructor() {
-    this.accountRepository = Registry.getInstance().inject('accountRepository')
-    this.walletRepository = Registry.getInstance().inject('walletRepository')
-  }
+  @inject('walletRepository')
+  walletRepository!: WalletRepository
 
   async execute(accountId: string): Promise<GetAccountOutput> {
     const account = await this.accountRepository.getAccountById(accountId)

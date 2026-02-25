@@ -3,6 +3,7 @@ import Account from '../../domain/Account'
 import Order from '../../domain/Order'
 import OrderRepository from '../../infra/repositories/OrderRepository'
 import WalletRepository from '../../infra/repositories/WalletRepository'
+import { inject } from '../../di/Registry'
 
 export type PlaceOrderInput = {
   accountId: string
@@ -17,11 +18,14 @@ export type PlaceOrderOutput = {
 }
 
 export default class PlaceOrder {
-  constructor(
-    private accountRepository: AccountRepository,
-    private orderRepository: OrderRepository,
-    private walletRepository: WalletRepository,
-  ) {}
+  @inject('accountRepository')
+  private accountRepository!: AccountRepository
+
+  @inject('orderRepository')
+  private orderRepository!: OrderRepository
+
+  @inject('walletRepository')
+  private walletRepository!: WalletRepository
 
   async execute(input: PlaceOrderInput): Promise<PlaceOrderOutput> {
     const { accountId, marketId, side, quantity, price } = input

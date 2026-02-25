@@ -29,8 +29,8 @@ test('Deve criar uma conta', async () => {
 test('Não deve criar uma conta se o nome for inválido', async () => {
   const input = {
     name: 'John',
-    email: 'john.doe@gmail.com',
-    document: '97456321558',
+    email: 'john.doe@hotmail.com',
+    document: '43241574000111',
     password: 'asdQWE123',
   }
   const responseSignup = await axios.post('http://localhost:3333/signup', input)

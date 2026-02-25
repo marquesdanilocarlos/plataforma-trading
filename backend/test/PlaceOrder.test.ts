@@ -10,6 +10,7 @@ import Account from '../src/domain/Account'
 import WalletRepository, {
   WalletRepositoryDatabase,
 } from '../src/infra/repositories/WalletRepository'
+import Registry from '../src/di/Registry'
 
 let placeOrder: PlaceOrder
 let deposit: Deposit
@@ -20,15 +21,18 @@ let walletRepository: WalletRepository
 
 beforeEach(() => {
   databaseConnection = new PgPromiseAdapter()
-  accountRepository = new AccountRepositoryDatabase(databaseConnection)
-  orderRepository = new OrderRepositoryDatabase(databaseConnection)
-  walletRepository = new WalletRepositoryDatabase(databaseConnection)
-  deposit = new Deposit(accountRepository, walletRepository)
-  placeOrder = new PlaceOrder(
-    accountRepository,
-    orderRepository,
-    walletRepository,
-  )
+  accountRepository = new AccountRepositoryDatabase()
+  orderRepository = new OrderRepositoryDatabase()
+  walletRepository = new WalletRepositoryDatabase()
+
+  const registry = Registry.getInstance()
+  registry.register('accountRepository', accountRepository)
+  registry.register('orderRepository', orderRepository)
+  registry.register('walletRepository', walletRepository)
+  registry.register('databaseConnection', databaseConnection)
+
+  deposit = new Deposit()
+  placeOrder = new PlaceOrder()
 })
 
 afterEach(async () => {

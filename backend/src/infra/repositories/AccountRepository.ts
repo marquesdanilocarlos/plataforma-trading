@@ -1,6 +1,6 @@
 import Account from '../../domain/Account'
-import Balance from '../../domain/Balance'
 import { DatabaseConnection } from '../database/DatabaseConnection'
+import { inject } from '../../di/Registry'
 
 type AccountRow = {
   account_id: string
@@ -23,7 +23,8 @@ export default interface AccountRepository {
 }
 
 export class AccountRepositoryDatabase implements AccountRepository {
-  constructor(private connection: DatabaseConnection) {}
+  @inject('databaseConnection')
+  connection!: DatabaseConnection
 
   async saveAccount(account: Account): Promise<void> {
     await this.connection.query(

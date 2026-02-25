@@ -1,5 +1,6 @@
 import WalletRepository from '../../infra/repositories/WalletRepository'
 import AccountRepository from '../../infra/repositories/AccountRepository'
+import { inject } from '../../di/Registry'
 
 export type WithdrawInput = {
   accountId: string
@@ -8,10 +9,11 @@ export type WithdrawInput = {
 }
 
 export default class Withdraw {
-  constructor(
-    private accountRepository: AccountRepository,
-    private walletRepository: WalletRepository,
-  ) {}
+  @inject('accountRepository')
+  private accountRepository!: AccountRepository
+
+  @inject('walletRepository')
+  private walletRepository!: WalletRepository
 
   async execute(input: WithdrawInput) {
     const { accountId, assetId, quantity } = input

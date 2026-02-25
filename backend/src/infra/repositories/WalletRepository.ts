@@ -1,6 +1,7 @@
 import Wallet from '../../domain/Wallet'
 import Balance from '../../domain/Balance'
 import { DatabaseConnection } from '../database/DatabaseConnection'
+import { inject } from '../../di/Registry'
 
 type BalanceRow = {
   asset_id: string
@@ -14,7 +15,8 @@ export default interface WalletRepository {
 }
 
 export class WalletRepositoryDatabase implements WalletRepository {
-  constructor(private connection: DatabaseConnection) {}
+  @inject('databaseConnection')
+  connection!: DatabaseConnection
 
   async getWalletById(accountId: string): Promise<Wallet> {
     const balancesData = await this.connection.query<BalanceRow>(

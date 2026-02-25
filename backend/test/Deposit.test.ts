@@ -9,6 +9,7 @@ import PgPromiseAdapter from '../src/infra/database/PgPromiseAdapter'
 import WalletRepository, {
   WalletRepositoryDatabase,
 } from '../src/infra/repositories/WalletRepository'
+import Registry from '../src/di/Registry'
 
 let signup: Signup
 let getAccount: GetAccount
@@ -19,11 +20,17 @@ let walletRepository: WalletRepository
 
 beforeEach(() => {
   databaseConnection = new PgPromiseAdapter()
-  accountRepository = new AccountRepositoryDatabase(databaseConnection)
-  walletRepository = new WalletRepositoryDatabase(databaseConnection)
-  signup = new Signup(accountRepository)
-  getAccount = new GetAccount(accountRepository, walletRepository)
-  deposit = new Deposit(accountRepository, walletRepository)
+  accountRepository = new AccountRepositoryDatabase()
+  walletRepository = new WalletRepositoryDatabase()
+
+  const registry = Registry.getInstance()
+  registry.register('accountRepository', accountRepository)
+  registry.register('walletRepository', walletRepository)
+  registry.register('databaseConnection', databaseConnection)
+
+  signup = new Signup()
+  getAccount = new GetAccount()
+  deposit = new Deposit()
 })
 
 afterEach(async () => {

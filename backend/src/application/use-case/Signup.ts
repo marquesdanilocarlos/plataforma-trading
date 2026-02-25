@@ -1,6 +1,7 @@
 import AccountRepository from '../../infra/repositories/AccountRepository'
 import { sendEmail } from '../../mailer'
 import Account from '../../domain/Account'
+import { inject } from '../../di/Registry'
 
 type SignupInput = {
   name: string
@@ -14,12 +15,13 @@ type SignupOutput = {
 }
 
 export default class Signup {
-  constructor(private accountDAO: AccountRepository) {}
+  @inject('accountRepository')
+  private accountRepository!: AccountRepository
 
   async execute(input: SignupInput): Promise<SignupOutput> {
     const account = Account.create(input)
 
-    await this.accountDAO.saveAccount(account)
+    await this.accountRepository.saveAccount(account)
     await sendEmail(account.email, 'Welcome!', '...')
     return {
       accountId: account.accountId,
