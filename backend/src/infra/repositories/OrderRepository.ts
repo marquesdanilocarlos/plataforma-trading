@@ -18,7 +18,7 @@ type OrderRow = {
 export default interface OrderRepository {
   saveOrder(order: Order): Promise<void>
   updateOrder(order: Order): Promise<void>
-  getOrderById(orderId: string): Promise<Order | null>
+  getOrderById(orderId: string): Promise<Order>
   getHighestBuy(marketId: string): Promise<Order | null>
   getLowestSell(marketId: string): Promise<Order | null>
 }

@@ -26,6 +26,7 @@ export default class ExpressAdapter implements HttpServer {
           const output = await callback(req.params, req.body)
           res.json(output)
         } catch (e: unknown) {
+          console.error(e)
           const errorMessage =
             e instanceof Error ? e.message : 'An unknown error occurred'
           res.status(422).json({

@@ -66,9 +66,10 @@ export default class Order {
   }
 
   fill(quantity: number, price: number) {
+    this._fillPrice =
+      (this._fillQuantity * this._fillPrice + quantity * price) /
+      (this._fillQuantity + quantity)
     this._fillQuantity += quantity
-    this._fillPrice = price
-
     if (this.getAvailableQuantity() === 0) {
       this._status = 'closed'
     }

@@ -4,6 +4,7 @@ import Order from '../../domain/Order'
 import OrderRepository from '../../infra/repositories/OrderRepository'
 import WalletRepository from '../../infra/repositories/WalletRepository'
 import { inject } from '../../di/Registry'
+import ExecuteOrder from './ExecuteOrder'
 
 export type PlaceOrderInput = {
   accountId: string
@@ -26,6 +27,9 @@ export default class PlaceOrder {
 
   @inject('walletRepository')
   private walletRepository!: WalletRepository
+
+  @inject('executeOrder')
+  private executeOrder!: ExecuteOrder
 
   async execute(input: PlaceOrderInput): Promise<PlaceOrderOutput> {
     const { accountId, marketId, side, quantity, price } = input
@@ -55,27 +59,7 @@ export default class PlaceOrder {
 
     await this.orderRepository.saveOrder(order)
     await this.walletRepository.updateWallet(wallet)
-
-    while (true) {
-      const highestBuy = await this.orderRepository.getHighestBuy(marketId)
-      const lowestSell = await this.orderRepository.getLowestSell(marketId)
-
-      if (!highestBuy || !lowestSell || highestBuy.price < lowestSell.price) {
-        break
-      }
-
-      const fillQuantity = Math.min(highestBuy.quantity, lowestSell.quantity)
-      const fillPrice =
-        highestBuy?.timestamp > lowestSell?.timestamp
-          ? highestBuy.price
-          : lowestSell.price
-
-      highestBuy.fill(fillQuantity, fillPrice)
-      lowestSell.fill(fillQuantity, fillPrice)
-
-      await this.orderRepository.updateOrder(highestBuy)
-      await this.orderRepository.updateOrder(lowestSell)
-    }
+    await this.executeOrder.execute(marketId)
 
     return {
       orderId: order.orderId,
