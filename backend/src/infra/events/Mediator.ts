@@ -1,20 +1,15 @@
-type handlerType = {
-  event: string
-  callback: Function
-}
+import Event from './Event'
 
 export default class Mediator {
-  handlers: handlerType[] = []
+  handlers: Event[] = []
 
-  register(event: string, callback: Function) {
-    this.handlers.push({ event, callback })
+  register(event: Event) {
+    this.handlers.push(event)
   }
 
-  async notifyAll(event: string, data: unknown) {
+  async notifyAll() {
     for (const handler of this.handlers) {
-      if (handler.event === event) {
-        await handler.callback(data)
-      }
+      handler.dispatch()
     }
   }
 }

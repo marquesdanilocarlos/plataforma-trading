@@ -12,6 +12,7 @@ import WalletRepository, {
 } from '../src/infra/repositories/WalletRepository'
 import Registry from '../src/di/Registry'
 import ExecuteOrder from '../src/application/use-case/ExecuteOrder'
+import Mediator from '../src/infra/events/Mediator'
 
 let placeOrder: PlaceOrder
 let deposit: Deposit
@@ -20,6 +21,7 @@ let orderRepository: OrderRepositoryDatabase
 let accountRepository: AccountRepository
 let walletRepository: WalletRepository
 let executeOrder: ExecuteOrder
+let mediator: Mediator
 
 beforeEach(() => {
   databaseConnection = new PgPromiseAdapter()
@@ -27,8 +29,10 @@ beforeEach(() => {
   orderRepository = new OrderRepositoryDatabase()
   walletRepository = new WalletRepositoryDatabase()
   executeOrder = new ExecuteOrder()
+  mediator = new Mediator()
 
   const registry = Registry.getInstance()
+  registry.register('mediator', mediator)
   registry.register('accountRepository', accountRepository)
   registry.register('orderRepository', orderRepository)
   registry.register('walletRepository', walletRepository)

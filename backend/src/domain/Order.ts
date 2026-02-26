@@ -1,4 +1,5 @@
 import UUID from './UUID'
+import Entity from './Entity'
 
 type OrderProps = {
   account_id: string
@@ -13,7 +14,7 @@ type OrderProps = {
   order_id?: string
 }
 
-export default class Order {
+export default class Order extends Entity {
   private _orderId: UUID
   private _accountId: UUID
   private _marketId: string
@@ -37,6 +38,7 @@ export default class Order {
     status: string,
     timestamp: Date,
   ) {
+    super()
     this._orderId = new UUID(orderId)
     this._accountId = new UUID(accountId)
     this._marketId = marketId

@@ -4,7 +4,8 @@ import Order from '../../domain/Order'
 import OrderRepository from '../../infra/repositories/OrderRepository'
 import WalletRepository from '../../infra/repositories/WalletRepository'
 import { inject } from '../../di/Registry'
-import ExecuteOrder from './ExecuteOrder'
+import Mediator from '../../infra/events/Mediator'
+import OrderPlacedEvent from '../../infra/events/OrderPlacedEvent'
 
 export type PlaceOrderInput = {
   accountId: string
@@ -28,8 +29,8 @@ export default class PlaceOrder {
   @inject('walletRepository')
   private walletRepository!: WalletRepository
 
-  @inject('executeOrder')
-  private executeOrder!: ExecuteOrder
+  @inject('mediator')
+  private mediator!: Mediator
 
   async execute(input: PlaceOrderInput): Promise<PlaceOrderOutput> {
     const { accountId, marketId, side, quantity, price } = input
@@ -59,7 +60,9 @@ export default class PlaceOrder {
 
     await this.orderRepository.saveOrder(order)
     await this.walletRepository.updateWallet(wallet)
-    await this.executeOrder.execute(marketId)
+
+    this.mediator.register(new OrderPlacedEvent(order))
+    await this.mediator.notifyAll()
 
     return {
       orderId: order.orderId,

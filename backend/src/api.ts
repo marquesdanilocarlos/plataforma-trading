@@ -13,11 +13,13 @@ import Registry from './di/Registry'
 import GetOrder from './application/use-case/GetOrder'
 import OrderController from './infra/controllers/OrderController'
 import ExecuteOrder from './application/use-case/ExecuteOrder'
+import Mediator from './infra/events/Mediator'
 
 async function main() {
   const httpServer = new ExpressAdapter()
   Registry.getInstance().register('httpServer', httpServer)
   Registry.getInstance().register('databaseConnection', new PgPromiseAdapter())
+  Registry.getInstance().register('mediator', new Mediator())
 
   /* Registro dos Repositories */
   Registry.getInstance().register(
