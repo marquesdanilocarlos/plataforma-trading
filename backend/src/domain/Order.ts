@@ -1,133 +1,121 @@
-import UUID from './UUID'
-import Entity from './Entity'
+import UUID from "./UUID";
 
-type OrderProps = {
-  account_id: string
-  market_id: string
-  side: string
-  quantity: number
-  price: number
-  fill_quantity?: number
-  fill_price?: number
-  status?: string
-  timestamp?: Date
-  order_id?: string
-}
+export default class Order {
+    private orderId: UUID;
+    private marketId: string;
+    private accountId: UUID;
+    private side: string;
+    private quantity: number;
+    private price: number;
+    private fillQuantity: number;
+    private fillPrice: number;
+    private status: string;
+    private timestamp: Date;
 
-export default class Order extends Entity {
-  private _orderId: UUID
-  private _accountId: UUID
-  private _marketId: string
-  private _side: string
-  private _quantity: number
-  private _price: number
-  private _fillQuantity: number
-  private _fillPrice: number
-  private _status: string
-  private _timestamp: Date
-
-  constructor(
-    orderId: string,
-    marketId: string,
-    accountId: string,
-    side: string,
-    quantity: number,
-    price: number,
-    fillQuantity: number,
-    fillPrice: number,
-    status: string,
-    timestamp: Date,
-  ) {
-    super()
-    this._orderId = new UUID(orderId)
-    this._accountId = new UUID(accountId)
-    this._marketId = marketId
-    this._side = side
-    this._quantity = quantity
-    this._price = price
-    this._fillQuantity = fillQuantity
-    this._fillPrice = fillPrice
-    this._status = status
-    this._timestamp = timestamp
-  }
-
-  static create(input: OrderProps): Order {
-    const orderId = input.order_id ?? UUID.create().getValue()
-    return new Order(
-      orderId,
-      input.market_id,
-      input.account_id,
-      input.side,
-      input.quantity,
-      input.price,
-      input.fill_quantity ?? 0,
-      input.fill_price ?? 0,
-      input.status ?? 'open',
-      input.timestamp ?? new Date(),
-    )
-  }
-
-  fill(quantity: number, price: number) {
-    this._fillPrice =
-      (this._fillQuantity * this._fillPrice + quantity * price) /
-      (this._fillQuantity + quantity)
-    this._fillQuantity += quantity
-    if (this.getAvailableQuantity() === 0) {
-      this._status = 'closed'
+    constructor (
+        orderId: string,
+        marketId: string,
+        accountId: string,
+        side: string,
+        quantity: number,
+        price: number,
+        fillQuantity: number,
+        fillPrice: number,
+        status: string,
+        timestamp: Date
+    ) {
+        this.orderId = new UUID(orderId);
+        this.marketId = marketId;
+        this.accountId = new UUID(accountId);
+        this.side = side;
+        this.quantity = quantity;
+        this.price = price;
+        this.fillQuantity = fillQuantity;
+        this.fillPrice = fillPrice;
+        this.status = status;
+        this.timestamp = timestamp;
     }
-  }
 
-  getAvailableQuantity(): number {
-    return this._quantity - this._fillQuantity
-  }
+    static createOrder (
+        accountId: string,
+        marketId: string,
+        side: string,
+        quantity: number,
+        price: number
+    ) {
+        const orderId = UUID.create().getValue();
+        return new Order(
+            orderId,
+            marketId,
+            accountId,
+            side,
+            quantity,
+            price,
+            0,
+            0,
+            "open",
+            new Date()
+        );
+    }
 
-  get orderId(): string {
-    return this._orderId.getValue()
-  }
+    getOrderId () {
+        return this.orderId.getValue();
+    }
 
-  get accountId(): string {
-    return this._accountId.getValue()
-  }
+    getMarketId () {
+        return this.marketId;
+    }
 
-  get marketId(): string {
-    return this._marketId
-  }
+    getAccountId () {
+        return this.accountId.getValue();
+    }
 
-  get side(): string {
-    return this._side
-  }
+    getSide () {
+        return this.side;
+    }
 
-  get quantity(): number {
-    return this._quantity
-  }
+    getQuantity () {
+        return this.quantity;
+    }
 
-  get price(): number {
-    return this._price
-  }
+    getPrice () {
+        return this.price;
+    }
 
-  get fillQuantity(): number {
-    return this._fillQuantity
-  }
+    getFillQuantity () {
+        return this.fillQuantity;
+    }
 
-  get fillPrice(): number {
-    return this._fillPrice
-  }
+    getFillPrice () {
+        return this.fillPrice;
+    }
 
-  get status(): string {
-    return this._status
-  }
+    getStatus () {
+        return this.status;
+    }
 
-  get timestamp(): Date {
-    return this._timestamp
-  }
+    getTimestamp () {
+        return this.timestamp;
+    }
 
-  getMainAsset(): string {
-    const [mainAsset] = this.marketId.split('-')
-    return mainAsset
-  }
+    getMainAsset () {
+        const [mainAsset] = this.getMarketId().split("-");
+        return mainAsset;
+    }
 
-  getPaymentAsset(): string {
-    const [, paymentAsset] = this.marketId.split('-')
-    return paymentAsset
-  }
+    getPaymentAsset () {
+        const [, paymentAsset] = this.getMarketId().split("-");
+        return paymentAsset;
+    }
+
+    fill (quantity: number, price: number) {
+        this.fillPrice = ((this.fillQuantity*this.fillPrice)+(quantity*price))/(this.fillQuantity+quantity);
+        this.fillQuantity += quantity;
+        if (this.getAvailableQuantity() === 0) this.status = "closed";
+    }
+    
+    getAvailableQuantity () {
+        return this.quantity - this.fillQuantity;
+    }
+
 }

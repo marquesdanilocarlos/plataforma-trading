@@ -1,11 +1,15 @@
 export default class Name {
-  constructor(private value: string) {
-    if (!this.value || !this.value.match(/[a-zA-Z]+ [a-zA-Z]+/)) {
-      throw new Error('Invalid name')
-    }
-  }
+    private value: string;
 
-  getValue(): string {
-    return this.value
-  }
+    constructor (name: string) {
+        if (!name || !name.match(/[a-zA-Z]+ [a-zA-Z]+/)) {
+            throw new Error("Invalid name");
+        }
+        this.value = name;
+    }
+
+    getValue () {
+        return this.value;
+    }
+    
 }

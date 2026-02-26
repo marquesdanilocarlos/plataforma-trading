@@ -10,7 +10,7 @@ create table ccca.account (
     password text
 );
 
-create table ccca.account_balance (
+create table ccca.balance (
     account_id uuid,
     asset_id text,
     quantity numeric,

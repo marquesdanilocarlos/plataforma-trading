@@ -1,66 +1,61 @@
-import Name from './Name'
-import Email from './Email'
-import Document from './Document'
-import Password from './Password'
-import UUID from './UUID'
-
-type AccountProps = {
-  name: string
-  email: string
-  document: string
-  password: string
-  account_id?: string
-}
+import Document from "./Document";
+import Email from "./Email";
+import Name from "./Name";
+import Password from "./Password";
+import UUID from "./UUID";
 
 export default class Account {
-  private _name: Name
-  private _email: Email
-  private _document: Document
-  private _password: Password
-  private _accountId: UUID
+    private accountId: UUID;
+    private name: Name;
+    private email: Email;
+    private document: Document;
+    private password: Password;
 
-  constructor(
-    accountId: string,
-    name: string,
-    email: string,
-    document: string,
-    password: string,
-  ) {
-    this._accountId = new UUID(accountId)
-    this._name = new Name(name)
-    this._email = new Email(email)
-    this._document = new Document(document)
-    this._password = new Password(password)
-  }
+    constructor (
+        accountId: string,
+        name: string,
+        email: string,
+        document: string,
+        password: string
+    ) {
+        this.accountId = new UUID(accountId);
+        this.name = new Name(name);
+        this.email = new Email(email);
+        this.document = new Document(document);
+        this.password = new Password(password);
+    }
 
-  static create(input: AccountProps): Account {
-    const accountId = input.account_id ?? UUID.create().getValue()
-    return new Account(
-      accountId,
-      input.name,
-      input.email,
-      input.document,
-      input.password,
-    )
-  }
+    static createAccount (
+        name: string,
+        email: string,
+        document: string,
+        password: string
+    ) {
+        const accountId = UUID.create().getValue();
+        return new Account(accountId, name, email, document, password);
+    }
 
-  get name(): string {
-    return this._name.getValue()
-  }
+    getName () {
+        return this.name.getValue();
+    }
 
-  get email(): string {
-    return this._email.getValue()
-  }
+    getEmail () {
+        return this.email.getValue();
+    }
 
-  get document(): string {
-    return this._document.getValue()
-  }
+    setEmail (email: string) {
+        this.email = new Email(email);
+    }
 
-  get password(): string {
-    return this._password.getValue()
-  }
+    getDocument () {
+        return this.document.getValue();
+    }
 
-  get accountId(): string {
-    return this._accountId.getValue()
-  }
+    getPassword () {
+        return this.password.getValue();
+    }
+
+    getAccountId () {
+        return this.accountId.getValue();
+    }
 }
